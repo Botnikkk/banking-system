@@ -69,6 +69,24 @@ def format_input(ques):
     string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
     input_ret = input(string)
     return input_ret
+
+def upd_sta(user, update):
+    #opening the file
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+    cur.execute('SELECT statement FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
+    data = cur.fetchone()
+    sta = data[0]
+
+    if sta == "EMPTY" : 
+        sta = update + " ON " + str(date.today()) + ","
+    else : 
+        sta += update + " ON " + str(date.today()) + ","
+    cur.execute('UPDATE details SET statement = "{sta}" WHERE account_number = {acc_num}'.format(sta=str(sta),acc_num=user))
+
+    conn.commit()
+    cur.close()
+
 async def homescreen(user):
     #printing home bar
     centre(symbol="=", title=" Home Page ")
@@ -88,11 +106,11 @@ async def homescreen(user):
         await transfer(user)
 
     elif answer == option_list[3] :
-        #await statement(user)
+        await statement(user)
         x=1
         
     elif answer == option_list[4] :
-        #await loan(user)
+        await loan(user)
         x=1
 
     elif answer == option_list[5] :
@@ -233,10 +251,11 @@ async def withdraw(user):
     #opening the file
     conn = sqlite3.connect(database)
     cur = conn.cursor()
-    cur.execute('SELECT balance, password FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
+    cur.execute('SELECT balance, password, statement FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
     data = cur.fetchone()
     bal = int(data[0])
     pas = data[1]
+    sta = data[2]
 
     centre("Current balance : {bal}".format(bal=bal))
 
@@ -263,18 +282,103 @@ async def withdraw(user):
 
         if with_input > bal : 
             centre("INSUFFICIENT BALANCE !")
+            conn.commit()
+            cur.close()
+            ans_check(option_list=["back"])
+            await homescreen(user)
         else : 
-            cur.execute('UPDATE details SET balance = balance - {with_input}'.format(with_input=with_input))
+            cur.execute('UPDATE details SET balance = balance - {with_input} WHERE account_number = {acc_num}'.format(with_input=with_input, acc_num=user))
+            conn.commit()
+            cur.close()
+
+            sta = "{with_input} withdrawn".format(with_input=str(with_input))
+            upd_sta(user,sta)
+
             centre("You withrew {with_input}......if you're wondering where it went, it went into a virtual blackhole (^_^)".format(with_input=with_input))
             centre("New balance : {new_bal}".format(new_bal=(bal-with_input)))
+            ans_check(option_list=["back"])
+            await homescreen(user)
+    else : 
+        centre("password did not match")
+        await homescreen()
     conn.commit()
     cur.close()
 
+async def transfer(user):
+    #opening the file
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+    cur.execute('SELECT balance, password FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
+    data = cur.fetchone()
+    bal = int(data[0])
+    pas = str(data[1])
+
+    centre("Current balance : {bal}".format(bal=bal))
+
+     #checking pass
+    pass_trials = 2
+    ques = "Enter your password"
+    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+    input_pass = maskpass.advpass(prompt=string, mask="*")
+    if input_pass.lower() != pas :
+
+        while input_pass != pas and pass_trials > 0 : 
+
+            centre("incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
+            ques = "Enter your password"
+            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
+            input_pass = maskpass.advpass(prompt=string, mask="*")
+            pass_trials -= 1
+            if input_pass == pas :
+                break
+    if pass_trials >= 0 and input_pass == pas :
+
+        tran_input = format_input("Enter the account id you wish to transfer the ammount to")
+        tran_input  = int_check(tran_input)
+
+        cur.execute('SELECT name FROM details WHERE account_number = "{acc_num}"'.format(acc_num=tran_input))
+        name = cur.fetchone()
+        if name is not None : 
+            name = name[0]
+            centre("Transfering ammount to {name}".format(name=name))
+
+            tran_amm = format_input("Enter the ammount you wish to transfer")
+            tran_amm = int_check(tran_amm)
+
+            cur.execute('UPDATE details SET balance = balance + {amm} WHERE account_number = "{num}"'.format(amm=tran_amm,num=tran_input))
+            cur.execute('UPDATE details SET balance = balance - {amm} WHERE account_number = "{num}"'.format(amm=tran_amm,num=user))
+            
+            conn.commit()
+            cur.close()
+
+            upd_sta(user=user,update="Transfered ₹ {amm} to {acc}".format(amm=tran_amm, acc=tran_input))
+            upd_sta(user=tran_input, update="Recieved ₹ {amm} from {acc}".format(amm=tran_amm, acc=user))
+            centre("TRANSACTION SUCCSSESFUL ! your balance now is ₹ {bal}".format())
+            ans_check(option_list=["back"])
+            await homescreen(user)
+        else : 
+            centre("TRANSACTION FAILED, USER DOES NOT EXIST")
+            await homescreen(user)
+    else :
+        centre("password did not match")
+        await homescreen()
+
+async def statement(user): 
+    #opening the file
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+    cur.execute('SELECT statement FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
+    data = cur.fetchone()
+    sta = str(data[0]).split(",")
+
+    for i in sta : 
+        centre(i)
+    
     ans_check(option_list=["back"])
     await homescreen(user)
-
-async def transfer(user):
-    x=1
+    
+async def loan(user):
+    x=1 
 
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
