@@ -1,10 +1,9 @@
-import operator
-import pickle as p
 import asyncio 
 import random
 import maskpass
 import sqlite3
 from datetime import date
+import matplotlib.pyplot as m
 
 
 middle  = 46*" "
@@ -37,11 +36,11 @@ def int_check(answer) :
             continue
     return int(answer)
 
-def centre(title,symbol=" ") :
+def centre(title,symbol=" ",str_end="\n") :
     #aligns the title in centre with symbols around it
     gap = str(symbol)*(64-int((len(title)/2)))
     gap2 = str(symbol)*(128- len(title) - len(gap))
-    print( middle + "|" + gap + title + gap2 + "|" + "\n" + middle + "|" + 128*" " + "|")
+    print(( middle + "|" + gap + title + gap2 + "|" + "\n" + middle + "|" + 128*" " + "|"),end=str_end)
 
 def ans_check(option_list) :
 
@@ -92,7 +91,7 @@ async def homescreen(user):
     centre(symbol="=", title=" Home Page ")
 
     #printing and detecting option choices
-    option_list = ["Account info check", "Withdraw", "Transfer", "View Statement", "Calculate loan", "Lottery slots", "log out"]
+    option_list = ["Account info check", "Withdraw", "Transfer", "View Statement", "Calculate loan", "Slots", "log out"]
     answer = ans_check(option_list)
 
     #performing tasks based on choice
@@ -107,15 +106,12 @@ async def homescreen(user):
 
     elif answer == option_list[3] :
         await statement(user)
-        x=1
         
     elif answer == option_list[4] :
         await loan(user)
-        x=1
 
     elif answer == option_list[5] :
-        #await lottery(user)
-        x=1
+        await slots(user)
 
     elif answer == option_list[6] :
          centre(symbol="=", title=" You were logged out ")
@@ -241,7 +237,7 @@ async def acc_info(user):
     centre("Account info", "=")
     centre("Name : {name}".format(name=data[0]))
     centre("Account number : {acc_num}".format(acc_num=user))
-    centre("Current balance : {bal}".format(bal=data[1]))
+    centre("Current balance : ₹ {bal}".format(bal=data[1]))
     centre("Account created on : {date}".format(date=data[2]))
 
     ans_check(option_list=["back"])
@@ -257,7 +253,7 @@ async def withdraw(user):
     pas = data[1]
     sta = data[2]
 
-    centre("Current balance : {bal}".format(bal=bal))
+    centre("Current balance : ₹ {bal}".format(bal=bal))
 
      #checking pass
     pass_trials = 2
@@ -291,16 +287,16 @@ async def withdraw(user):
             conn.commit()
             cur.close()
 
-            sta = "{with_input} withdrawn".format(with_input=str(with_input))
+            sta = "₹ {with_input} withdrawn".format(with_input=str(with_input))
             upd_sta(user,sta)
 
-            centre("You withrew {with_input}......if you're wondering where it went, it went into a virtual blackhole (^_^)".format(with_input=with_input))
-            centre("New balance : {new_bal}".format(new_bal=(bal-with_input)))
+            centre("You withrew ₹ {with_input}......if you're wondering where it went, it went into a virtual blackhole (^_^)".format(with_input=with_input))
+            centre("New balance : ₹ {new_bal}".format(new_bal=(bal-with_input)))
             ans_check(option_list=["back"])
             await homescreen(user)
     else : 
         centre("password did not match")
-        await homescreen()
+        await homescreen(user)
     conn.commit()
     cur.close()
 
@@ -313,7 +309,7 @@ async def transfer(user):
     bal = int(data[0])
     pas = str(data[1])
 
-    centre("Current balance : {bal}".format(bal=bal))
+    centre("Current balance : ₹ {bal}".format(bal=bal))
 
      #checking pass
     pass_trials = 2
@@ -361,7 +357,7 @@ async def transfer(user):
             await homescreen(user)
     else :
         centre("password did not match")
-        await homescreen()
+        await homescreen(user)
 
 async def statement(user): 
     #opening the file
@@ -378,7 +374,142 @@ async def statement(user):
     await homescreen(user)
     
 async def loan(user):
-    x=1 
+    centre("Which type of interest based loan do you wish to calculate?")
+    option_list=["Simple interest", "Amortized loan"]
+    ans = ans_check(option_list)
+    if  ans == option_list[0] :
+        await simple(user)
+    else : 
+        await amortized(user)
+
+async def simple(user):
+
+    p = int_check(format_input("Enter a principal ammount"))
+    r = int_check(format_input("Enter a interest rate"))
+    r = (r/100)
+    t = int_check(format_input("Enter a time period in years"))
+    a = p + (p*r*t)
+    
+
+    centre("Total ammount paid : ₹ {a}".format(a=a))
+    centre("Principal ammount : ₹ {p}   Ammount paid in interest : ₹ {i}".format(p=p, i=(a-p)))
+
+    option_list=["View pie chat","back"]
+    ans = ans_check(option_list)
+
+    if ans == option_list[0]:
+        y = [p , (a - p )]
+        lper = int((p/a)*100)
+        iper = 100 - lper
+        labels = ["Loan ammount {lper}%".format(lper=lper) , "Ammount paid in interest {iper}%".format(iper=iper)]
+        m.pie(y , labels=labels)
+        m.show()
+
+        ans_check(option_list=["back"])
+
+    await homescreen(user)
+
+async def amortized(user):
+    p = int_check(format_input("Enter a principal ammount"))
+    r = int_check(format_input("Enter a interest rate"))
+    r = (r/100)
+    t = int_check(format_input("Enter a time period in years"))
+
+    a =  int((p*r*((1 + r)**t))/(((1 + r)**t) - 1))
+    i = int(p*r)
+    p = int(a - i) 
+    
+    a = int(a)
+    centre("Total ammount paid : ₹ {a}".format(a=a))
+    centre("Principal repayment : ₹ {p}   Ammount paid in interest : ₹ {i}".format(p=p, i=i))
+
+    option_list=["View pie chat","back"]
+    ans = ans_check(option_list)
+
+    if ans == option_list[0]:
+        y = [p , i]
+        lper = int((p/a)*100)
+        iper = 100 - lper
+        labels = ["Loan ammount {lper}%".format(lper=lper) , "Ammount paid in interest {iper}%".format(iper=iper)]
+        m.pie(y , labels=labels)
+        m.show()
+
+        ans_check(option_list=["back"])
+    
+    await homescreen(user)
+
+async def slots(user):
+    await roll(user)
+    option_list=["roll again", "back"]
+    ans = ans_check(option_list)
+    while ans == option_list[0]:
+        await roll(user)
+        option_list=["roll again", "back"]
+        ans = ans_check(option_list)
+    
+    await homescreen(user)
+
+async def roll(user):
+
+    conn = sqlite3.connect(database)
+    cur = conn.cursor()
+
+    cur.execute('SELECT balance FROM details WHERE account_number = {user}'.format(user=user))
+    bal = cur.fetchone()
+    bal = bal[0]
+
+    centre("SLOTS",symbol="=")
+    amm = int(format_input("Enter the ammount you wish to bet"))
+    if amm <= bal : 
+        for i in range(270) :
+            await asyncio.sleep(0.001)
+            if i < 70 :
+                a = random.randint(1,7)
+            if i < 130 : 
+                b = random.randint(1,7)
+            c = random.randint(1,7)
+            title = "| {a} | {b} | {c} |".format(a=a,b=b,c=c)
+            symbol = " "
+            gap = str(symbol)*(64-int((len(title)/2)))
+            gap2 = str(symbol)*(128- len(title) - len(gap))
+            print(( middle + "|" + gap + title + gap2 + "|"),end='\r')
+        centre(title)
+
+        if a == b == c == 7  :
+
+            centre("CONGRATULATIONS ! you've hit a jackpot !")
+            cur.execute('UPDATE details SET balance = balance + {amm} WHERE account_number = "{user}"'.format(amm=2*amm, user=user))
+            centre("You won ₹ {amm}".format(amm=2*amm))
+            conn.commit()
+            cur.close()
+            upd_sta(user,"Won ₹ {amm} in slots".format(amm=2*amm))
+
+        elif a == b == c :
+
+            centre("You didn't hit the jackpot but u didn't loose any money !")
+            conn.commit()
+            cur.close()
+
+        elif a == b or b == c or c == a :
+
+            centre("You hit the half jackpot ! you only lost half of your money !")
+            cur.execute('UPDATE details SET balance = balance - {amm} WHERE account_number = "{user}"'.format(amm=int(amm/2), user=user))
+            centre("You lost ₹ {amm}".format(amm=str(int(amm/2))))
+            conn.commit()
+            cur.close()
+            upd_sta(user,"Lost ₹ {amm} in slots".format(amm=int(amm/2)))
+
+        else : 
+
+            centre("OUCH! you could not hit the jackpot !")
+            cur.execute('UPDATE details SET balance = balance - {amm} WHERE account_number = "{user}"'.format(amm=amm, user=user))
+            centre("You lost ₹ {amm}".format(amm=amm))
+            conn.commit()
+            cur.close()
+            upd_sta(user,"Lost ₹ {amm} in slots".format(amm=amm))
+    else :
+        centre("NOT ENOUGH BALANCE !")
+
 
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
