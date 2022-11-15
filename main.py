@@ -144,6 +144,7 @@ async def signup():
     
     #assigning account number
     acc_num = random.randint(10**8, 10**17)
+    centre("Your account number is : {num}".format(num=acc_num))
     
     #assinging balance
     bal = random.randint(10000,10000000)
