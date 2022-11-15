@@ -4,6 +4,7 @@ import maskpass
 import sqlite3
 from datetime import date
 import matplotlib.pyplot as m
+import os
 
 
 middle  = 46*" "
@@ -87,6 +88,8 @@ def upd_sta(user, update):
     cur.close()
 
 async def homescreen(user):
+    os.system('cls')
+    centre("-","-")
     #printing home bar
     centre(symbol="=", title=" Home Page ")
 
@@ -117,7 +120,8 @@ async def homescreen(user):
          centre(symbol="=", title=" You were logged out ")
 
 async def signup(): 
-    
+    os.system('cls')
+    centre("-","-")
     centre(symbol="=", title=" Sign up page ")
 
     #taking name input
@@ -162,7 +166,8 @@ async def signup():
     await login()
 
 async def login() :
-
+    os.system('cls')
+    centre("-","-")
     centre(symbol="=", title=" Login page ")
 
     #opening the file
@@ -227,6 +232,8 @@ async def login() :
                 centre(symbol="=", title=" You were logged out ")
 
 async def acc_info(user):
+    os.system('cls')
+    centre("-","-")
     #opening the file
     conn = sqlite3.connect(database)
     cur = conn.cursor()
@@ -245,6 +252,8 @@ async def acc_info(user):
     await homescreen(user)
 
 async def withdraw(user):
+    os.system('cls')
+    centre("-","-")
     #opening the file
     conn = sqlite3.connect(database)
     cur = conn.cursor()
@@ -302,6 +311,8 @@ async def withdraw(user):
     cur.close()
 
 async def transfer(user):
+    os.system('cls')
+    centre("-","-")
     #opening the file
     conn = sqlite3.connect(database)
     cur = conn.cursor()
@@ -360,7 +371,9 @@ async def transfer(user):
         centre("password did not match")
         await homescreen(user)
 
-async def statement(user): 
+async def statement(user):
+    os.system('cls') 
+    centre("-","-")
     #opening the file
     conn = sqlite3.connect(database)
     cur = conn.cursor()
@@ -375,6 +388,8 @@ async def statement(user):
     await homescreen(user)
     
 async def loan(user):
+    os.system('cls')
+    centre("-","-")
     centre("Which type of interest based loan do you wish to calculate?")
     option_list=["Simple interest", "Amortized loan"]
     ans = ans_check(option_list)
@@ -384,6 +399,8 @@ async def loan(user):
         await amortized(user)
 
 async def simple(user):
+    os.system('cls')
+    centre("-","-")
 
     p = int_check(format_input("Enter a principal ammount"))
     r = int_check(format_input("Enter a interest rate"))
@@ -411,6 +428,8 @@ async def simple(user):
     await homescreen(user)
 
 async def amortized(user):
+    os.system('cls')
+    centre("-","-")
     p = int_check(format_input("Enter a principal ammount"))
     r = int_check(format_input("Enter a interest rate"))
     r = (r/100)
@@ -451,7 +470,8 @@ async def slots(user):
     await homescreen(user)
 
 async def roll(user):
-
+    os.system('cls')
+    centre("-","-")
     conn = sqlite3.connect(database)
     cur = conn.cursor()
 
@@ -519,6 +539,7 @@ file.close()
 
 #forever running loop for the game
 while 1 < 2 :
+    os.system('cls')
     string = ""
     for i in  lines : 
         print(middle + i.strip('\n'))
