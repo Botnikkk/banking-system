@@ -22,6 +22,15 @@ def format_input(ques) :
     output = input(string)
     return output
 
+async def redirect(redirect):
+    for i in range(3,0,-1):
+        title = "Redirecting to {redirect} in {i}...".format(redirect=redirect,i=i)
+        symbol = " "
+        gap = str(symbol)*(64-int((len(title)/2)))
+        gap2 = str(symbol)*(128- len(title) - len(gap))
+        print(( middle + "|" + gap + title + gap2 + "|"),end='\r') 
+        await asyncio.sleep(1)   
+
 def int_check(answer) :
     answer = str(answer).strip()
     integer = -1
@@ -65,11 +74,6 @@ def ans_check(option_list) :
         
     return option_list[int(answer) - 1]
 
-def format_input(ques):
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    input_ret = input(string)
-    return input_ret
-
 def upd_sta(user, update):
     #opening the file
     conn = sqlite3.connect(database)
@@ -88,6 +92,7 @@ def upd_sta(user, update):
     cur.close()
 
 async def homescreen(user):
+    await redirect("homescreen")
     os.system('cls')
     centre("-","-")
     #printing home bar
@@ -166,6 +171,7 @@ async def signup():
     await login()
 
 async def login() :
+    await redirect("login page")
     os.system('cls')
     centre("-","-")
     centre(symbol="=", title=" Login page ")
@@ -260,7 +266,7 @@ async def withdraw(user):
     cur.execute('SELECT balance, password, statement FROM details WHERE account_number = "{acc_num}"'.format(acc_num=user))
     data = cur.fetchone()
     bal = int(data[0])
-    pas = data[1]
+    pas = str(data[1])
     sta = data[2]
 
     centre("Current balance : ₹ {bal}".format(bal=bal))
@@ -552,3 +558,4 @@ while 1 < 2 :
     else :
         centre(" Exited the bank ","=")
         break
+    
