@@ -24,7 +24,7 @@ def format_input(ques) :
 
 async def redirect(redirect):
     for i in range(3,0,-1):
-        title = "Redirecting to {redirect} in {i}...".format(redirect=redirect,i=i)
+        title = f"Redirecting to {redirect} in {i}..."
         symbol = " "
         gap = str(symbol)*(64-int((len(title)/2)))
         gap2 = str(symbol)*(128- len(title) - len(gap))
@@ -131,12 +131,11 @@ async def signup():
 
     #taking name input
     ques = "Enter your first name : "
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    first_name_input = input(string)
+    first_name_input = format_input(ques)
 
     ques = "Enter your last name : "
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    last_name_input = input(string)
+    last_name_input = format_input(ques)
+    
     name_input = first_name_input.capitalize() + " " + last_name_input.capitalize()
 
     #taking pass input
@@ -167,7 +166,8 @@ async def signup():
     conn.commit()
     cur.close()
     centre(symbol="=", title="")
-    
+    centre('Please note/copy your account number as it will not be shown again.')
+    ans_check(option_list=['Noted'])
     await login()
 
 async def login() :
