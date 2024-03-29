@@ -5,16 +5,19 @@ import sqlite3
 from datetime import date
 import matplotlib.pyplot as m
 import os
+import screeninfo
 
 
-middle  = 46*" "
+screen_width = screeninfo.get_monitors()[0].width
+middle = " "*int(((screen_width/10)-128)/2)
+
 database = "database"
 conn = sqlite3.connect(database)
 cur = conn.cursor()
 try:
     cur.execute('CREATE TABLE details (name STRING, account_number INTEGER, password STRING, balance INTEGER, statement STRING, creation_date DATE)')
 except:
-    print("database exists")
+    None
 cur.close()
 
 def format_input(ques) : 
@@ -51,7 +54,6 @@ def centre(title,symbol=" ",str_end="\n") :
     gap = str(symbol)*(64-int((len(title)/2)))
     gap2 = str(symbol)*(128- len(title) - len(gap))
     print(( middle + "|" + gap + title + gap2 + "|" + "\n" + middle + "|" + 128*" " + "|"),end=str_end)
-
 def ans_check(option_list) :
 
     #prints and detetcs the answers and returns the choose answer
@@ -367,7 +369,7 @@ async def transfer(user):
 
             upd_sta(user=user,update="Transfered ₹ {amm} to {acc}".format(amm=tran_amm, acc=tran_input))
             upd_sta(user=tran_input, update="Recieved ₹ {amm} from {acc}".format(amm=tran_amm, acc=user))
-            centre("TRANSACTION SUCCSSESFUL ! your balance now is ₹ {bal}".format())
+            centre("TRANSACTION SUCCSSESFUL ! your balance now is ₹ {bal}".format(bal=bal-tran_amm))
             ans_check(option_list=["back"])
             await homescreen(user)
         else : 
@@ -489,7 +491,7 @@ async def roll(user):
     amm = int(format_input("Enter the ammount you wish to bet"))
     if amm <= bal : 
         for i in range(270) :
-            await asyncio.sleep(0.001)
+            await asyncio.sleep(0.01)
             if i < 70 :
                 a = random.randint(1,7)
             if i < 130 : 
