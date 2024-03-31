@@ -1,15 +1,11 @@
 import asyncio 
 import random
-import maskpass
 import sqlite3
 from datetime import date
 import matplotlib.pyplot as m
 import os
-import screeninfo
-from botnikkk import formatting as n
+import botnikkk as n
 
-screen_width = screeninfo.get_monitors()[0].width
-middle = " "*int(((screen_width/10)-128)/2)
 
 database = "database"
 conn = sqlite3.connect(database)
@@ -19,15 +15,6 @@ try:
 except:
     None
 cur.close()
-
-async def redirect(redirect):
-    for i in range(3,0,-1):
-        title = f"Redirecting to {redirect} in {i}..."
-        symbol = " "
-        gap = str(symbol)*(64-int((len(title)/2)))
-        gap2 = str(symbol)*(128- len(title) - len(gap))
-        print(( middle + "|" + gap + title + gap2 + "|"),end='\r') 
-        await asyncio.sleep(1)  
 
 def upd_sta(user, update):
     #opening the file
@@ -45,9 +32,9 @@ def upd_sta(user, update):
 
     conn.commit()
     cur.close()
-
+    
 async def homescreen(user):
-    await redirect("homescreen")
+    await n.redirect("homescreen")
     os.system('cls')
     n.centre("-","-")
     #printing home bar
@@ -94,16 +81,13 @@ async def signup():
     name_input = first_name_input.capitalize() + " " + last_name_input.capitalize()
 
     #taking pass input
-    ques = "Enter a 6 digit pin"
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    pass_input = maskpass.advpass(prompt=string, mask="*")
+    
+    pass_input = n.format_input('Enter a 6 digit pin - ')
     pass_input = n.int_check(pass_input)
     while len(str(pass_input)) != 6:
         n.centre("Password is too short")
-        ques = "Enter a 6 digit pin"
-        string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-        pass_input = maskpass.advpass(prompt=string, mask="*")
-        pass_input=n.int_check(pass_input)
+        pass_input = n.format_input('Enter a 6 digit pin - ')
+        pass_input = n.int_check(pass_input)
     
     #assigning account number
     acc_num = random.randint(10**8, 10**17)
@@ -126,7 +110,7 @@ async def signup():
     await login()
 
 async def login() :
-    await redirect("login page")
+    n.redirect("login page")
     os.system('cls')
     n.centre("-","-")
     n.centre(symbol="=", title=" Login page ")
@@ -166,21 +150,19 @@ async def login() :
 
     if id_trials >= 0 and input_id in id_data  :
         #checking pass
-        ques = "Enter your password"
-        string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-        input_pass = maskpass.advpass(prompt=string, mask="*")
-        if input_pass.lower() != pass_data[index] :
+        input_pass = n.format_input('Enter your password - ')
+        input_pass = str(n.int_check(input_pass))
 
+        if input_pass != pass_data[index] :
+            print('incorrect')
             while input_pass != pass_data[index] and pass_trials > 0 : 
 
                 n.centre("incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
-                ques = "Enter your password"
-                string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-                input_pass = maskpass.advpass(prompt=string, mask="*")
+                input_pass = n.format_input('Enter your password - ')
+                input_pass = str(n.int_check(input_pass))
                 pass_trials -= 1
                 if input_pass == pass_data[index] :
                     break
-    
         if pass_trials >= 0 and input_pass == pass_data[index] :
             #welcome screen
             if input_id in id_data and input_pass == pass_data[index] :
@@ -228,17 +210,15 @@ async def withdraw(user):
 
      #checking pass
     pass_trials = 2
-    ques = "Enter your password"
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    input_pass = maskpass.advpass(prompt=string, mask="*")
-    if input_pass.lower() != pas :
+    input_pass = n.format_input('Enter your password - ')
+    input_pass = str(n.int_check(input_pass))
+    if input_pass != pas :
 
         while input_pass != pas and pass_trials > 0 : 
 
             n.centre("incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
-            ques = "Enter your password"
-            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-            input_pass = maskpass.advpass(prompt=string, mask="*")
+            input_pass = n.format_input('Enter your password - ')
+            input_pass = str(n.int_check(input_pass))
             pass_trials -= 1
             if input_pass == pas :
                 break
@@ -284,19 +264,17 @@ async def transfer(user):
 
     n.centre("Current balance : ₹ {bal}".format(bal=bal))
 
-     #checking pass
+    #checking pass
     pass_trials = 2
-    ques = "Enter your password"
-    string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-    input_pass = maskpass.advpass(prompt=string, mask="*")
-    if input_pass.lower() != pas :
+    input_pass = n.format_input('Enter your password - ')
+    input_pass = str(n.int_check(input_pass))
+    if input_pass != pas :
 
         while input_pass != pas and pass_trials > 0 : 
 
             n.centre("incorrect password ! you have {trials} trials left ".format(trials=pass_trials))
-            ques = "Enter your password"
-            string  = middle + "| " + ques  + " "*(127-(len(ques))) +  "|\n" + middle  + "| -" 
-            input_pass = maskpass.advpass(prompt=string, mask="*")
+            input_pass = n.format_input('Enter your password - ')
+            input_pass = str(n.int_check(input_pass))
             pass_trials -= 1
             if input_pass == pas :
                 break
@@ -447,14 +425,11 @@ async def roll(user):
             await asyncio.sleep(0.01)
             if i < 70 :
                 a = random.randint(1,7)
-            if i < 130 : 
+            if i < 130 :
                 b = random.randint(1,7)
             c = random.randint(1,7)
             title = "| {a} | {b} | {c} |".format(a=a,b=b,c=c)
-            symbol = " "
-            gap = str(symbol)*(64-int((len(title)/2)))
-            gap2 = str(symbol)*(128- len(title) - len(gap))
-            print(( middle + "|" + gap + title + gap2 + "|"),end='\r')
+            n.centre(title,str_end='\r')
         n.centre(title)
 
         if a == b == c == 7  :
@@ -492,7 +467,6 @@ async def roll(user):
     else :
         n.centre("NOT ENOUGH BALANCE !")
 
-
 #cool entry screen 
 file = open("design.txt",encoding= "utf8")
 lines = file.readlines()
@@ -500,6 +474,7 @@ file.close()
 
 #forever running loop for the game
 while 1 < 2 :
+    middle = n.centre('middle')[1]
     os.system('cls')
     string = ""
     for i in  lines : 

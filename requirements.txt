@@ -1,2 +1,2 @@
-maskpass==0.3.6
+botnikkk==0.0.4
 matplotlib==3.5.3
