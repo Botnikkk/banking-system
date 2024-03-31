@@ -73,7 +73,7 @@ async def signup():
 
     #taking name input
     ques = "Enter your first name : "
-    first_name_input = n.n.format_input(ques)
+    first_name_input = n.format_input(ques)
 
     ques = "Enter your last name : "
     last_name_input = n.format_input(ques)
@@ -110,7 +110,7 @@ async def signup():
     await login()
 
 async def login() :
-    n.redirect("login page")
+    await n.redirect("login page")
     os.system('cls')
     n.centre("-","-")
     n.centre(symbol="=", title=" Login page ")
