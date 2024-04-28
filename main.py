@@ -1,11 +1,23 @@
-import asyncio 
-import random
-import sqlite3
-from datetime import date
-import matplotlib.pyplot as m
 import os
-import botnikkk as n
-
+try:
+    import asyncio 
+    import random
+    import sqlite3
+    from datetime import date
+    import matplotlib.pyplot as m
+    import botnikkk as n
+except :
+    os.system('cls')
+    print('Installing packages.....')
+    os.system(' pip install -r requirements.txt')
+    os.system('cls')
+    import asyncio 
+    import random
+    import sqlite3
+    from datetime import date
+    import matplotlib.pyplot as m
+    import botnikkk as n
+input('Please enter fullscreen mode for best experience, input any key if you are in fullscreen mode - ')
 
 database = "database"
 conn = sqlite3.connect(database)
@@ -47,22 +59,16 @@ async def homescreen(user):
     #performing tasks based on choice
     if answer == option_list[0] :
         await acc_info(user)
-
     elif answer == option_list[1] :
         await withdraw(user)
-
     elif answer == option_list[2] :
         await transfer(user)
-
     elif answer == option_list[3] :
-        await statement(user)
-        
+        await statement(user)     
     elif answer == option_list[4] :
         await loan(user)
-
     elif answer == option_list[5] :
         await slots(user)
-
     elif answer == option_list[6] :
          n.centre(symbol="=", title=" You were logged out ")
 
@@ -471,14 +477,13 @@ async def roll(user):
 file = open("design.txt",encoding= "utf8")
 lines = file.readlines()
 file.close()
-
 #forever running loop for the game
 while 1 < 2 :
-    middle = n.centre('middle')[1]
+    middle = n.get_alignments()["left_align"]
     os.system('cls')
     string = ""
     for i in  lines : 
-        print(middle + i.strip('\n'))
+        print(middle*" " + i.strip('\n'))
     n.centre("Are you a existing user ?")
     answer  = n.ans_check(option_list=["yes", "no", "exit bank"])   
     if answer == "yes" :

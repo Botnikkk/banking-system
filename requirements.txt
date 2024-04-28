@@ -1,2 +1,2 @@
-botnikkk==0.0.4
+botnikkk==0.0.9
 matplotlib==3.5.3
